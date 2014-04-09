@@ -124,7 +124,7 @@ SCS::deleteBucket($bucketName)
 
 ```php
 
-var_dump(mkdir("scs://{$bucketName}"));
+mkdir("scs://{$bucketName}");
 
 file_put_contents("scs://{$bucketName}/test.txt", "http://weibo.com/smcz !");
 
