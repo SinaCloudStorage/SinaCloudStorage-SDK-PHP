@@ -118,15 +118,15 @@ SCS::deleteBucket($bucketName)
 
 #### 基本示例:
 
-文件: examples/example.php
+* 文件: examples/example.php
 
 #### 表单上传
 
-文件: examples/example-form.php
+* 文件: examples/example-form.php
 
 #### 实现一个Wrapper
 
-文件: examples/example-wrapper.php
+* 文件: examples/example-wrapper.php
 
 ```php
 
