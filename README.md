@@ -46,6 +46,12 @@ Put an object from a resource (buffer/file size is required - note: the resource
 SCS::putObject(SCS::inputResource(fopen($file, 'rb'), filesize($file)), $bucketName, $uploadName, SCS::ACL_PUBLIC_READ)
 ```
 
+Put an object as a string:
+
+```php
+SCS::putObjectString($string, $bucket, $uri)
+```
+
 #### Retrieving objects
 
 Get an object:
