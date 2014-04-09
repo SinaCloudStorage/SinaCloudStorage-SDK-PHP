@@ -6,7 +6,7 @@ PHP SDK for 新浪云存储
 
 ### Requirements
 
-* PHP >= 5.3.1
+* PHP >= 5.2.0
 * [PHP cURL]
 
 
@@ -95,7 +95,7 @@ Create a bucket:
 SCS::putBucket($bucketName)
 ```
 
-Get the contents of a bucket:
+Get the contents of a bucket (list objects):
 
 ```php
 SCS::getBucket($bucketName)
@@ -106,3 +106,37 @@ Delete an empty bucket:
 ```php
 SCS::deleteBucket($bucketName)
 ```
+
+## Examples
+
+
+#### 基本示例:
+
+文件: examples/example.php
+
+#### 表单上传
+
+文件: examples/example-form.php
+
+#### 实现一个Wrapper
+
+文件: examples/example-wrapper.php
+
+```php
+
+var_dump(mkdir("scs://{$bucketName}"));
+
+file_put_contents("scs://{$bucketName}/test.txt", "http://weibo.com/smcz !");
+
+file_get_contents("scs://{$bucketName}/test.txt")
+
+foreach (new DirectoryIterator("scs://{$bucketName}") as $b) {
+
+	echo "\t" . $b . "\n";
+}
+
+unlink("scs://{$bucketName}/test.txt");
+
+rmdir("scs://{$bucketName}");
+```
+
