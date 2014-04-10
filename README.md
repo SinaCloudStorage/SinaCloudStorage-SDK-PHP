@@ -31,7 +31,7 @@ SCS::setExceptions(true);
 
 try
 {
-	$response = S3::getObjectInfo($bucket, $uri);
+	$response = SCS::getObjectInfo($bucket, $uri);
 	print_r($response);
 }
 catch(SCSException $e)
