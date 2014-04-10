@@ -24,6 +24,23 @@ Statically (e,g; SCS::getObject(...)):
 SCS::setAuth($scsAccessKey, $scsSecretKey);
 ```
 
+Use exceptions
+
+```php
+SCS::setExceptions(true);
+
+try
+{
+	$response = S3::getObjectInfo($bucket, $uri);
+	print_r($response);
+}
+catch(SCSException $e)
+{
+	echo $e->getMessage();
+}
+```
+
+
 ### Object Operations
 
 #### Uploading objects
@@ -31,25 +48,25 @@ SCS::setAuth($scsAccessKey, $scsSecretKey);
 Put an object from a file:
 
 ```php
-SCS::putObject(SCS::inputFile($file, false), $bucketName, $uploadName, SCS::ACL_PUBLIC_READ)
+SCS::putObject(SCS::inputFile($file, false), $bucketName, $uploadName, SCS::ACL_PUBLIC_READ);
 ```
 
 Put an object from a string and set its Content-Type:
 
 ```php
-SCS::putObject($string, $bucketName, $uploadName, SCS::ACL_PUBLIC_READ, array(), array('Content-Type' => 'text/plain'))
+SCS::putObject($string, $bucketName, $uploadName, SCS::ACL_PUBLIC_READ, array(), array('Content-Type' => 'text/plain'));
 ```
 
 Put an object from a resource (buffer/file size is required - note: the resource will be fclose()'d automatically):
 
 ```php
-SCS::putObject(SCS::inputResource(fopen($file, 'rb'), filesize($file)), $bucketName, $uploadName, SCS::ACL_PUBLIC_READ)
+SCS::putObject(SCS::inputResource(fopen($file, 'rb'), filesize($file)), $bucketName, $uploadName, SCS::ACL_PUBLIC_READ);
 ```
 
 Put an object as a string:
 
 ```php
-SCS::putObjectString($string, $bucket, $uri)
+SCS::putObjectString($string, $bucket, $uri);
 ```
 
 #### Retrieving objects
@@ -57,19 +74,25 @@ SCS::putObjectString($string, $bucket, $uri)
 Get an object:
 
 ```php
-SCS::getObject($bucketName, $uploadName)
+SCS::getObject($bucketName, $uploadName);
+```
+
+Get an object info (meta):
+
+```php
+SCS::getObjectInfo($bucket, $uri, $returnInfo = true);
 ```
 
 Save an object to file:
 
 ```php
-SCS::getObject($bucketName, $uploadName, $saveName)
+SCS::getObject($bucketName, $uploadName, $saveName);
 ```
 
 Save an object to a resource of any type:
 
 ```php
-SCS::getObject($bucketName, $uploadName, fopen('savefile.txt', 'wb'))
+SCS::getObject($bucketName, $uploadName, fopen('savefile.txt', 'wb'));
 ```
 
 #### Copying and deleting objects
@@ -77,13 +100,13 @@ SCS::getObject($bucketName, $uploadName, fopen('savefile.txt', 'wb'))
 Copy an object:
 
 ```php
-SCS::copyObject($srcBucket, $srcName, $bucketName, $saveName, $metaHeaders = array(), $requestHeaders = array())
+SCS::copyObject($srcBucket, $srcName, $bucketName, $saveName, $metaHeaders = array(), $requestHeaders = array());
 ```
 
 Delete an object:
 
 ```php
-SCS::deleteObject($bucketName, $uploadName)
+SCS::deleteObject($bucketName, $uploadName);
 ```
 
 ### Bucket Operations
@@ -91,26 +114,49 @@ SCS::deleteObject($bucketName, $uploadName)
 Get a list of buckets:
 
 ```php
-SCS::listBuckets()  // Simple bucket list
-SCS::listBuckets(true)  // Detailed bucket list
+SCS::listBuckets();  // Simple bucket list
+SCS::listBuckets(true);  // Detailed bucket list
 ```
 
 Create a bucket:
 
 ```php
-SCS::putBucket($bucketName)
+SCS::putBucket($bucketName);
 ```
 
 Get the contents of a bucket (list objects):
 
 ```php
-SCS::getBucket($bucketName)
+SCS::getBucket($bucketName);
 ```
 
 Delete an empty bucket:
 
 ```php
-SCS::deleteBucket($bucketName)
+SCS::deleteBucket($bucketName);
+```
+
+### ACL Operations
+
+Get ACL
+
+```php
+SCS::getAccessControlPolicy($bucket); //for bucket
+SCS::getAccessControlPolicy($bucket, $uri); //for object
+```
+
+Set ACL
+
+```php
+$acp = array(
+	
+	'GRPS000000ANONYMOUSE' => array('read'),
+	'GRPS0000000CANONICAL' => array('read', 'write'),
+	'SINA0000001001HBK300' => array('read', 'write', 'read_acp', 'write_acp')
+);
+
+SCS::setAccessControlPolicy($bucket, $uri, $acp); //for bucket
+SCS::setAccessControlPolicy($bucket, '', $acp); //for object
 ```
 
 ### Examples
