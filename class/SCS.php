@@ -611,6 +611,35 @@ class SCS
 		$input['fp'] =& $resource;
 		return $input;
 	}
+	
+	/**
+	* Create input array info for putObject() with a resource multipart
+	*
+	* @param string $resource Input resource to read from
+	* @param integer $bufferSize Input byte size
+	* @return array | false
+	*/
+	public static function inputResourceMultipart(&$resource, $partSize, $uploadId, $partNumber)
+	{
+		if (!is_resource($resource) || (int)$partSize <= 0)
+		{
+			self::__triggerError('SCS::inputResourceMultipart(): Invalid resource or part size', __FILE__, __LINE__);
+			return false;
+		}
+		
+		$data = fread($resource, $partSize);
+
+		$input = array(
+		
+			'data' => $data,
+			'md5sum' =>  base64_encode(md5($data, true))
+		);
+		
+		$input['uploadId'] = $uploadId;
+		$input['partNumber'] = $partNumber;
+		
+		return $input;
+	}
 
 
 	/**
@@ -652,6 +681,12 @@ class SCS
 				$rest->size = filesize($input['file']);
 			elseif (isset($input['data']))
 				$rest->size = strlen($input['data']);
+		}
+		
+		if (isset($input['uploadId'], $input['partNumber'])) {
+			
+			$rest->setParameter('uploadId', $input['uploadId']);
+			$rest->setParameter('partNumber', $input['partNumber']);
 		}
 
 		// Custom request headers (Content-Type, Content-Disposition, Content-Encoding)
@@ -1295,6 +1330,117 @@ class SCS
 		
 		return $params;
 	}
+	
+	
+	
+	/**
+	* Initiate Multipart Upload
+	*
+	* @param string $bucket Destination bucket name
+	* @param string $uri Destination object URI
+	* @param constant $acl ACL constant
+	* @param array $metaHeaders Optional array of x-amz-meta-* headers
+	* @param array $requestHeaders Optional array of request headers (content type, disposition, etc.)
+	* @param constant $storageClass Storage class constant
+	* @return mixed | false
+	*/
+	public static function initiateMultipartUpload($bucket, $uri, $acl = self::ACL_PRIVATE, $metaHeaders = array(), $requestHeaders = array(), $storageClass = self::STORAGE_CLASS_STANDARD)
+	{
+		$rest = new SCSRequest('POST', $bucket, $uri, self::$endpoint);
+		$rest->setParameter('multipart', null);
+		$rest->setHeader('Content-Length', 0);
+		
+		// Custom request headers (Content-Type, Content-Disposition, Content-Encoding)
+		if (is_array($requestHeaders))
+			foreach ($requestHeaders as $h => $v) $rest->setHeader($h, $v);
+		elseif (is_string($requestHeaders)) // Support for legacy contentType parameter
+			$rest->setHeader('Content-Type', $requestHeaders);
+		
+		foreach ($metaHeaders as $h => $v) $rest->setAmzHeader('x-amz-meta-'.$h, $v);
+		if ($storageClass !== self::STORAGE_CLASS_STANDARD) // Storage class
+			$rest->setAmzHeader('x-amz-storage-class', $storageClass);
+		$rest->setAmzHeader('x-amz-acl', $acl);
+		
+		// Content-Type
+		if (!isset($requestHeaders['Content-Type']))
+		{
+			$rest->setHeader('Content-Type', self::__getMIMEType($uri));
+		}
+
+		$rest = $rest->getResponse();
+		
+		//print_r($rest);
+		
+		if ($rest->error === false && $rest->code !== 200)
+			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
+		if ($rest->error !== false)
+		{
+			self::__triggerError(sprintf("SCS::initiateMultipartUpload({$bucket}, {$uri}): [%s] %s",
+			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
+			return false;
+		}
+		
+		//print_r($rest->body);
+		
+		return isset($rest->body->UploadId) ? array(
+		
+			'bucket' => $rest->body->Bucket,
+			'key' => $rest->body->Key,
+			'upload_id' => $rest->body->UploadId,
+		
+		) : false;
+	}
+
+
+	/**
+	* List Parts
+	*
+	* @param string $bucket Bucket name
+	* @param string $uri Object URI
+	* @param string $uploadId
+	* @return mixed | false
+	*/
+	public static function listParts($bucket, $uri, $uploadId)
+	{
+		$rest = new SCSRequest('GET', $bucket, $uri, self::$endpoint);
+		$rest->setParameter('uploadId', $uploadId);
+		$response = $rest->getResponse();
+		if ($response->error === false && $response->code !== 200)
+			$response->error = array('code' => $response->code, 'message' => 'Unexpected HTTP status');
+		if ($response->error !== false)
+		{
+			self::__triggerError(sprintf("SCS::listParts({$bucket}, {$uri}, {$uploadId}): [%s] %s",
+			$response->error['code'], $response->error['message']), __FILE__, __LINE__);
+			return false;
+		}
+		
+		$results = array();
+		
+		if (isset($response->body, $response->body->Parts))
+		{
+			foreach ($response->body->Parts as $c)
+			{
+				$a = get_object_vars($c);
+				
+				/*
+					"PartNumber": 1,
+		            "LastModified": "Wed, 20 Jun 2012 14:57:10 UTC",
+		            "ETag": "050fdc0e690bfae7b29392f152bcf301",
+		            "Size": 1024
+				*/
+					
+				$results[] = array(
+				
+					'part_number' => intval($c->PartNumber),
+					'time' => strtotime((string)$a['Last-Modified']),
+					'size' => (int)$c->Size,
+					'etag' => substr((string)$c->ETag, 1, -1)
+				);
+			}
+		}
+
+		return $results;
+	}
 
 
 
@@ -1651,7 +1797,7 @@ final class SCSRequest
 			}
 			*/
 			
-			$single_filter_list = array('acl', 'location', 'torrent', 'website', 'logging', 'relax', 'meta', 'uploads', 'part', 'copy');
+			$single_filter_list = array('acl', 'location', 'torrent', 'website', 'logging', 'relax', 'meta', 'uploads', 'part', 'copy', 'multipart');
 			$double_filter_list = array('uploadId', 'ip', 'partNumber');
 			
 			foreach ($this->parameters as $var => $value)
@@ -1767,6 +1913,7 @@ final class SCSRequest
 
 		/* @todo delete */
 		$headers[] = 'Host: ' . ($this->headers['Host'] !== '' ? $this->headers['Host'] : $this->endpoint);
+		//print_r($headers);
 
 		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($curl, CURLOPT_HEADER, false);
@@ -1814,7 +1961,8 @@ final class SCSRequest
 				'message' => curl_error($curl),
 				'resource' => $this->resource
 			);
-
+			
+		//echo $this->response->body;
 		@curl_close($curl);
 
 		// Parse body into XML | JSON
