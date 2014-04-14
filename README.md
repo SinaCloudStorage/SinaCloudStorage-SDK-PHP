@@ -259,6 +259,8 @@ try
 		
 		SCS::completeMultipartUpload($bucket, $object, $uploadId, $part_info);
 		
+		echo "上传完成\n";
+		
 	}
 	
 }
