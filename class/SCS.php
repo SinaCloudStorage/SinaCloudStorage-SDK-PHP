@@ -616,7 +616,9 @@ class SCS
 	* Create input array info for putObject() with a resource multipart
 	*
 	* @param string $resource Input resource to read from
-	* @param integer $bufferSize Input byte size
+	* @param integer $partSize
+	* @param string $uploadId
+	* @param integer $partNumber
 	* @return array | false
 	*/
 	public static function inputResourceMultipart(&$resource, $partSize, $uploadId, $partNumber)
@@ -653,7 +655,7 @@ class SCS
 	* @param array $requestHeaders Array of request headers or content type as a string
 	* @param constant $storageClass Storage class constant
 	* @param constant $serverSideEncryption Server-side encryption
-	* @return boolean
+	* @return boolean | mixed
 	*/
 	public static function putObject($input, $bucket, $uri, $acl = self::ACL_PRIVATE, $metaHeaders = array(), $requestHeaders = array(), $storageClass = self::STORAGE_CLASS_STANDARD, $serverSideEncryption = self::SSE_NONE)
 	{
@@ -732,6 +734,12 @@ class SCS
 			$rest->response->error['code'], $rest->response->error['message']), __FILE__, __LINE__);
 			return false;
 		}
+		
+		if (isset($input['uploadId'], $input['partNumber'])) {
+			
+			return $rest->response->headers;
+		}
+		
 		return true;
 	}
 
@@ -1434,12 +1442,69 @@ class SCS
 					'part_number' => intval($c->PartNumber),
 					'time' => strtotime((string)$a['Last-Modified']),
 					'size' => (int)$c->Size,
-					'etag' => substr((string)$c->ETag, 1, -1)
+					'etag' => (string)$c->ETag
 				);
 			}
 		}
 
 		return $results;
+	}
+	
+	
+	
+	/**
+	* Complete Multipart Upload
+	*
+	* @param string $bucket Bucket name
+	* @param string $uri Object URI
+	* @param string $uploadId
+	* @return boolean
+	*/
+	public static function completeMultipartUpload($bucket, $uri, $uploadId, $parts)
+	{
+		$rest = new SCSRequest('POST', $bucket, $uri, self::$endpoint);
+		$rest->setParameter('uploadId', $uploadId);
+		
+		if (false)
+		{
+			$rest->setHeader('Content-Type', 'application/json');
+			$rest->data = json_encode($parts);
+		}
+		else
+		{
+			$dom = new DOMDocument;			
+			$dom->formatOutput = true;
+			$createCompleteMultipartUpload = $dom->createElement('CompleteMultipartUpload');
+			$dom->appendChild($createCompleteMultipartUpload);
+			
+			foreach ($parts as $part)
+			{	
+				$createPart = $dom->createElement('Part');
+				$createCompleteMultipartUpload->appendChild($createPart);
+				$createPart->appendChild($dom->createElement('PartNumber', $part['PartNumber']));
+				$createPart->appendChild($dom->createElement('ETag', $part['ETag']));
+			}
+	
+			$rest->removeParameter('formatter');
+			$rest->setHeader('Content-Type', 'application/xml');
+			$rest->data = $dom->saveXML();
+		}
+		
+		$rest->size = strlen($rest->data);
+		
+		$rest = $rest->getResponse();
+		
+		if ($rest->error === false && $rest->code !== 200)
+			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
+		if ($rest->error !== false)
+		{
+			self::__triggerError(sprintf("SCS::completeMultipartUpload({$bucket}, {$uri}, {$uploadId}, {$parts}): [%s] %s",
+			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
+			
+			return false;
+		}
+		
+		return true;
 	}
 
 
@@ -1735,6 +1800,17 @@ final class SCSRequest
 	public function setParameter($key, $value)
 	{
 		$this->parameters[$key] = $value;
+	}
+	
+	/**
+	* Remove request parameter
+	*
+	* @param string $key Key
+	* @return void
+	*/
+	public function removeParameter($key)
+	{
+		 unset($this->parameters[$key]);
 	}
 
 
