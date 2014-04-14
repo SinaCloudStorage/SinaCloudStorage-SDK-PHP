@@ -176,7 +176,6 @@ SCS::setAccessControlPolicy($bucket, '', $acp); //for object
 * 文件: examples/example-wrapper.php
 
 ```php
-
 mkdir("scs://{$bucketName}");
 
 file_put_contents("scs://{$bucketName}/test.txt", "http://weibo.com/smcz !");
@@ -193,3 +192,78 @@ unlink("scs://{$bucketName}/test.txt");
 rmdir("scs://{$bucketName}");
 ```
 
+#### 大文件分片上传
+
+* 文件: example-multipart-upload.php
+
+```php
+$fp = fopen($file, 'rb');
+
+SCS::setExceptions(true);
+
+try
+{
+	//初始化上传
+	$info = SCS::initiateMultipartUpload($bucket, $object, $acl = SCS::ACL_PRIVATE, $metaHeaders = array(), $requestHeaders = array());
+	
+	$uploadId = $info['upload_id'];
+	
+	$fp = fopen($file, 'rb');
+	
+	$i = 1;
+	
+	$part_info = array();
+	
+	
+	while (!feof($fp)) {
+		
+		//上传分片	
+		$res = SCS::putObject(SCS::inputResourceMultipart($fp, 1024*512, $uploadId, $i), $bucket, $object);
+		
+		if (isset($res['hash']))
+		{	
+			echo 'Part: ' . $i . " OK! \n";
+			
+			$part_info[] = array(
+				
+				'PartNumber' => $i,
+				'ETag' => $res['hash'],
+			);
+		}
+		
+		$i++;
+	}
+	
+	//列分片
+	$parts = SCS::listParts($bucket, $object, $uploadId);
+	
+	//print_r($parts);
+	//print_r($part_info);
+	
+	if (count($parts) > 0 && count($parts) == count($part_info)) {
+		
+		foreach ($parts as $k => $part) {
+			
+			//echo $part['etag'] . "\n";
+			//echo $part_info[$k]['ETag'] . "\n";
+			
+			if ($part['etag'] != $part_info[$k]['ETag']) {
+				
+				exit('分片不匹配');
+				break;
+			}
+		}
+		
+		//合并分片
+		echo "开始合并\n";
+		
+		SCS::completeMultipartUpload($bucket, $object, $uploadId, $part_info);
+		
+	}
+	
+}
+catch(SCSException $e)
+{
+    echo $e->getMessage();
+}
+```
