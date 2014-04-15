@@ -1458,7 +1458,7 @@ class SCS
 		$rest = new SCSRequest('POST', $bucket, $uri, self::$endpoint);
 		$rest->setParameter('uploadId', $uploadId);
 		
-		if (false)
+		if (true) //使用json格式
 		{
 			$rest->setHeader('Content-Type', 'application/json');
 			$rest->data = json_encode($parts);
@@ -1914,7 +1914,7 @@ final class SCSRequest
 		
 		/* @TODO delete */
 		
-		$url = (SCS::$useSSL ? 'https://' : 'http://') . '58.63.236.206' . $this->uri;
+		//$url = (SCS::$useSSL ? 'https://' : 'http://') . '58.63.236.206' . $this->uri;
 		
 
 		//var_dump('bucket: ' . $this->bucket, 'uri: ' . $this->uri, 'resource: ' . $this->resource, 'url: ' . $url);
@@ -1981,7 +1981,7 @@ final class SCSRequest
 		}
 
 		/* @todo delete */
-		$headers[] = 'Host: ' . ($this->headers['Host'] !== '' ? $this->headers['Host'] : $this->endpoint);
+		//$headers[] = 'Host: ' . ($this->headers['Host'] !== '' ? $this->headers['Host'] : $this->endpoint);
 		//print_r($headers);
 
 		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
