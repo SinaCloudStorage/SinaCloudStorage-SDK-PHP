@@ -204,7 +204,7 @@ SCS::setExceptions(true);
 try
 {
 	//初始化上传
-	$info = SCS::initiateMultipartUpload($bucket, $object, $acl = SCS::ACL_PRIVATE, $metaHeaders = array(), $requestHeaders = array());
+	$info = SCS::initiateMultipartUpload($bucket, $object, SCS::ACL_PUBLIC_READ);
 	
 	$uploadId = $info['upload_id'];
 	
