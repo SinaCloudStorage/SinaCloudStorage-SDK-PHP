@@ -194,7 +194,7 @@ rmdir("scs://{$bucketName}");
 
 #### 大文件分片上传
 
-* 文件: example-multipart-upload.php
+* 文件: examples/example-multipart-upload.php
 
 ```php
 $fp = fopen($file, 'rb');
