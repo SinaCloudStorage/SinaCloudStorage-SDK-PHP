@@ -1429,13 +1429,6 @@ class SCS
 			foreach ($response->body->Parts as $c)
 			{
 				$a = get_object_vars($c);
-				
-				/*
-					"PartNumber": 1,
-		            "LastModified": "Wed, 20 Jun 2012 14:57:10 UTC",
-		            "ETag": "050fdc0e690bfae7b29392f152bcf301",
-		            "Size": 1024
-				*/
 					
 				$results[] = array(
 				
