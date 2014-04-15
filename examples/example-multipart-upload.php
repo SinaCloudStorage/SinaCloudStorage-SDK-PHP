@@ -40,8 +40,8 @@ $bucket = BucketName;
 ################################################################################
 
 
-$object = "path/to/my/file.jpg";
-$file = "/Users/bruce/Desktop/IMG_1188.jpg";
+$object = "path/to/my/Sublime Text 2.0.2.dmg";
+$file = "/Users/caoli/Downloads/Sublime Text 2.0.2.dmg";
 
 
 $fp = fopen($file, 'rb');
@@ -71,7 +71,7 @@ try
 		{	
 			echo 'Part: ' . $i . " OK! \n";
 			
-			$part_info[] = array(
+			$part_info[$i] = array(
 				
 				'PartNumber' => $i,
 				'ETag' => $res['hash'],
@@ -89,12 +89,12 @@ try
 	
 	if (count($parts) > 0 && count($parts) == count($part_info)) {
 		
-		foreach ($parts as $k => $part) {
+		foreach ($parts as $part_number => $part) {
 			
 			//echo $part['etag'] . "\n";
 			//echo $part_info[$k]['ETag'] . "\n";
 			
-			if ($part['etag'] != $part_info[$k]['ETag']) {
+			if ($part['etag'] != $part_info[$part_number]['ETag']) {
 				
 				exit('分片不匹配');
 				break;
@@ -107,6 +107,8 @@ try
 		SCS::completeMultipartUpload($bucket, $object, $uploadId, $part_info);
 		
 		echo "上传完成\n";
+		
+		fclose($fp);
 		
 	}
 	

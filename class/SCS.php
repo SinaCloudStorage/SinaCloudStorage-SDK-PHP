@@ -1430,7 +1430,7 @@ class SCS
 			{
 				$a = get_object_vars($c);
 					
-				$results[] = array(
+				$results[intval($c->PartNumber)] = array(
 				
 					'part_number' => intval($c->PartNumber),
 					'time' => strtotime((string)$a['Last-Modified']),
