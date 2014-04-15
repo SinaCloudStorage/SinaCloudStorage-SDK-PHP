@@ -198,28 +198,21 @@ rmdir("scs://{$bucketName}");
 
 ```php
 $fp = fopen($file, 'rb');
-
 SCS::setExceptions(true);
 
 try
 {
 	//初始化上传
 	$info = SCS::initiateMultipartUpload($bucket, $object, SCS::ACL_PUBLIC_READ);
-	
 	$uploadId = $info['upload_id'];
-	
 	$fp = fopen($file, 'rb');
-	
 	$i = 1;
-	
 	$part_info = array();
-	
 	
 	while (!feof($fp)) {
 		
 		//上传分片	
-		$res = SCS::putObject(SCS::inputResourceMultipart($fp, 1024*512, $uploadId, $i), $bucket, $object);
-		
+		$res = SCS::putObject(SCS::inputResourceMultipart($fp, 1024*512, $uploadId, $i), $bucket, $object);	
 		if (isset($res['hash']))
 		{	
 			echo 'Part: ' . $i . " OK! \n";
@@ -230,13 +223,11 @@ try
 				'ETag' => $res['hash'],
 			);
 		}
-		
 		$i++;
 	}
 	
 	//列分片
 	$parts = SCS::listParts($bucket, $object, $uploadId);
-	
 	//print_r($parts);
 	//print_r($part_info);
 	
@@ -256,15 +247,10 @@ try
 		
 		//合并分片
 		echo "开始合并\n";
-		
 		SCS::completeMultipartUpload($bucket, $object, $uploadId, $part_info);
-		
-		echo "上传完成\n";
-		
+		echo "上传完成\n";	
 		fclose($fp);
-		
 	}
-	
 }
 catch(SCSException $e)
 {
