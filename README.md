@@ -224,7 +224,7 @@ try
 		{	
 			echo 'Part: ' . $i . " OK! \n";
 			
-			$part_info[$i] = array(
+			$part_info[] = array(
 				
 				'PartNumber' => $i,
 				'ETag' => $res['hash'],
@@ -247,7 +247,7 @@ try
 			//echo $part['etag'] . "\n";
 			//echo $part_info[$k]['ETag'] . "\n";
 			
-			if ($part['etag'] != $part_info[$part_number]['ETag']) {
+			if ($part['etag'] != $part_info[$part_number-1]['ETag']) {
 				
 				exit('分片不匹配');
 				break;
