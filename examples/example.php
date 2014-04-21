@@ -5,7 +5,7 @@
 *
 * SCS class usage
 */
-
+//var isPhoneGap = 1;
 //you can ignore it
 @include_once('config.php');
 
