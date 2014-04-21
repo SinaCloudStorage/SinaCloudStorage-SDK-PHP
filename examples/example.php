@@ -5,7 +5,7 @@
 *
 * SCS class usage
 */
-echo ""; #gitignore
+
 //you can ignore it
 @include_once('config.php');
 
