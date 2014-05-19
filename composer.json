@@ -2,7 +2,7 @@
     "name": "cloudmario/scs",
     "type": "library",
     "description": "PHP SDK for 新浪云存储",
-    "keywords": ["scs","新浪云存储","sina","sinastorage"],
+    "keywords": ["scs","sina","sinastorage"],
     "homepage": "https://github.com/CloudSide/SinaCloudStorage-SDK-PHP",
     "license": "MIT",
     "authors": [
