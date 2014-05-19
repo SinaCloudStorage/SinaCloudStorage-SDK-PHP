@@ -9,6 +9,10 @@ PHP SDK for 新浪云存储
 * PHP >= 5.2.0
 * [PHP cURL]
 
+### Installation
+
+* 可以使用`composer.phar`进行安装, 详细信息：https://packagist.org/packages/cloudmario/scs
+* 也可以直接引用源码
 
 ### Usage
 
