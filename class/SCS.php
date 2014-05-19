@@ -835,6 +835,30 @@ class SCS
 		}
 		return $rest->code == 200 ? $returnInfo ? $rest->headers : true : false;
 	}
+	
+	
+	/**
+	* Get Meta
+	*
+	* @param string $bucket Bucket name
+	* @param string $uri Object URI
+	* @return mixed | false
+	*/
+	public static function getMeta($bucket, $uri = '')
+	{
+		$rest = new SCSRequest('GET', $bucket, $uri, self::$endpoint);
+		$rest->setParameter('meta', null);
+		$rest = $rest->getResponse();
+		if ($rest->error === false && ($rest->code !== 200 && $rest->code !== 404))
+			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
+		if ($rest->error !== false)
+		{
+			self::__triggerError(sprintf("SCS::getMeta({$bucket}, {$uri}): [%s] %s",
+			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
+			return false;
+		}
+		return $rest->code == 200 ? $rest->body : false;
+	}
 
 
 	/**
