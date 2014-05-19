@@ -84,6 +84,12 @@ Get an object info (meta):
 SCS::getObjectInfo($bucket, $uri, $returnInfo = true);
 ```
 
+You can also:
+
+```php
+SCS::getMeta($bucket, $uri);
+```
+
 Save an object to file:
 
 ```php
@@ -135,6 +141,12 @@ Delete an empty bucket:
 
 ```php
 SCS::deleteBucket($bucketName);
+```
+
+Get bucket meta:
+
+```php
+SCS::getMeta($bucketName);
 ```
 
 ### ACL Operations
