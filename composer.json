@@ -17,8 +17,6 @@
         "php": ">=5.2.0"
     },
     "autoload": {
-        "psr-0": {
-            "SCS": "class/SCS.php"
-        }
+        "classmap": ["class/"]
     }
 }
