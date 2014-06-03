@@ -559,6 +559,43 @@ class SCS
 		}
 		return true;
 	}
+	
+	
+	/**
+	* realFileSize()
+	*
+	* @param string $file Input file path
+	* @return long file bytes
+	*/
+	public static function realFileSize($file)
+	{
+		$fp = fopen($file, 'r');
+		
+	    $pos = 0;
+	    $size = 1073741824;
+	    fseek($fp, 0, SEEK_SET);
+	    while ($size > 1)
+	    {
+	        fseek($fp, $size, SEEK_CUR);
+
+	        if (fgetc($fp) === false)
+	        {
+	            fseek($fp, -$size, SEEK_CUR);
+	            $size = (int)($size / 2);
+	        }
+	        else
+	        {
+	            fseek($fp, -1, SEEK_CUR);
+	            $pos += $size;
+	        }
+	    }
+
+	    while (fgetc($fp) !== false)  $pos++;
+	
+		fclose($fp);
+
+	    return $pos;
+	}
 
 
 	/**
@@ -575,7 +612,7 @@ class SCS
 			self::__triggerError('SCS::inputFile(): Unable to open input file: '.$file, __FILE__, __LINE__);
 			return false;
 		}
-		return array('file' => $file, 'size' => filesize($file), 'md5sum' => $md5sum !== false ?
+		return array('file' => $file, 'size' => self::realFileSize($file), 'md5sum' => $md5sum !== false ?
 		(is_string($md5sum) ? $md5sum : base64_encode(md5_file($file, true))) : '');
 	}
 
@@ -680,7 +717,7 @@ class SCS
 			$rest->size = $input['size'];
 		else {
 			if (isset($input['file']))
-				$rest->size = filesize($input['file']);
+				$rest->size = self::realFileSize($input['file']);
 			elseif (isset($input['data']))
 				$rest->size = strlen($input['data']);
 		}
