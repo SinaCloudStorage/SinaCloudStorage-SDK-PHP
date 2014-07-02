@@ -40,7 +40,7 @@ if (AccessKey == 'change-this' || SecretKey == 'change-this')
 // Instantiate the class
 $scs = new SCS(AccessKey, SecretKey);
 
-echo "SCS::getAuthenticatedURL(): " . SCS::getAuthenticatedURL('sdk', 'snapshot/snapshot.png', 86400000);
+echo "SCS::getAuthenticatedURL(): " . SCS::getAuthenticatedURL('sdk', 'snapshot/snapshot.png', 86400000) . "\n";
 
 // List your buckets:
 echo "SCS::listBuckets(): ".print_r($scs->listBuckets(), 1) . "\n";
