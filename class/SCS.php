@@ -1325,6 +1325,17 @@ class SCS
 			$content_type = '';
 		}
 		
+		
+		if ( !$bucket ) 
+		{
+					
+			return sprintf(($https ? 'https' : 'http') . '://%s/?' . ($ip ? 'ip=' . $ip . '&' : '') . 'KID=%s&Expires=%u&ssig=%s',
+					self::$endpoint, 
+					'sina,' . self::$__accessKey, 
+					$expires,
+					urlencode(self::__getHash("{$verb}\n\n{$content_type}\n{$expires}\n/" . ($ip ? '?ip=' . $ip : ''))));
+		}
+		
 		return sprintf(($https ? 'https' : 'http').'://%s/%s?' . ($ip ? 'ip=' . $ip . '&' : '') . 'KID=%s&Expires=%u&ssig=%s',
 		$hostBucket ? $bucket : self::$endpoint.'/'.$bucket, $uri, 'sina,' . self::$__accessKey, $expires,
 		urlencode(self::__getHash("{$verb}\n\n{$content_type}\n{$expires}\n/{$bucket}/{$uri}" . ($ip ? '?ip=' . $ip : ''))));
