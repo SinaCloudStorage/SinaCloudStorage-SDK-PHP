@@ -61,7 +61,7 @@ class SCS
 	 * @acess public
 	 * @static
 	 */
-	public static $endpoint = 'sinastorage.com';
+	public static $endpoint = 'sinastorage.cn';
 	
 	/**
 	 * Proxy information
@@ -161,7 +161,7 @@ class SCS
 	* @param string $endpoint Amazon URI
 	* @return void
 	*/
-	public function __construct($accessKey = null, $secretKey = null, $useSSL = false, $endpoint = 'sinastorage.com')
+	public function __construct($accessKey = null, $secretKey = null, $useSSL = false, $endpoint = 'sinastorage.cn')
 	{
 		if ($accessKey !== null && $secretKey !== null)
 			self::setAuth($accessKey, $secretKey);
@@ -1811,7 +1811,7 @@ final class SCSRequest
 	* @param string $endpoint SCS endpoint URI
 	* @return mixed
 	*/
-	function __construct($verb, $bucket = '', $uri = '', $endpoint = 'sinastorage.com')
+	function __construct($verb, $bucket = '', $uri = '', $endpoint = 'sinastorage.cn')
 	{
 		
 		$this->endpoint = $endpoint;
