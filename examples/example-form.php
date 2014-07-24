@@ -58,7 +58,7 @@ $params = SCS::getHttpUploadPostParams(
     false // False since we're not using flash
 );
 
-$uploadURL = 'http://' . $bucket . '.sinastorage.com/';
+$uploadURL = 'http://' . $bucket . '.sinastorage.cn/';
 
 ?><!DOCTYPE html>
 <html lang="zh-cn">

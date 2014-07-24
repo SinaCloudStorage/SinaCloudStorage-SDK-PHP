@@ -1391,7 +1391,8 @@ class SCS
 
 		// Create parameters
 		$params = new stdClass;
-		$params->AWSAccessKeyId = 'SINA000000' . strtoupper(self::$__accessKey);
+		//$params->AWSAccessKeyId = 'SINA000000' . strtoupper(self::$__accessKey);
+		$params->AWSAccessKeyId = self::$__accessKey;
 		$params->key = $uriPrefix.'${filename}';
 		$params->acl = $acl;
 		$params->policy = $policy; unset($policy);
