@@ -172,8 +172,8 @@ $acp = array(
 	'SINA0000001001HBK300' => array('read', 'write', 'read_acp', 'write_acp')
 );
 
-SCS::setAccessControlPolicy($bucket, $uri, $acp); //for bucket
-SCS::setAccessControlPolicy($bucket, '', $acp); //for object
+SCS::setAccessControlPolicy($bucket, $uri, $acp); //for object
+SCS::setAccessControlPolicy($bucket, '', $acp); //for bucket
 ```
 
 ### Examples
