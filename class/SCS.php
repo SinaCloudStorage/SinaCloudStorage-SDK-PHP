@@ -1308,7 +1308,8 @@ class SCS
 	public static function getAuthenticatedURL($bucket, $uri, $lifetime, $hostBucket = false, $https = false, $ip=null, $verb=null, $content_type=null)
 	{
 		$expires = self::__getTime() + $lifetime;
-		$uri = str_replace(array('%2F', '%2B'), array('/', '+'), rawurlencode($uri));
+		$uri = str_replace(array('%2F'), array('/'), rawurlencode($uri));
+		//$uri = str_replace(array('%2F', '%2B'), array('/', '+'), rawurlencode($uri));
 		
 		if (!$verb || !in_array($verb, array('GET', 'POST', 'PUT', 'HEAD', 'DELETE', 'OPTIONS')))
 		{
