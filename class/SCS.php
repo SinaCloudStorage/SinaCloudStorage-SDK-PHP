@@ -2066,7 +2066,12 @@ final class SCSRequest
 		curl_setopt($curl, CURLOPT_WRITEFUNCTION, array(&$this, '__responseWriteCallback'));
 		curl_setopt($curl, CURLOPT_HEADERFUNCTION, array(&$this, '__responseHeaderCallback'));
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-
+		
+		/* 必要时设置超时时间
+		curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 60);
+		curl_setopt($curl, CURLOPT_TIMEOUT, 1200);
+		*/
+		
 		// Request types
 		switch ($this->verb)
 		{
