@@ -942,6 +942,50 @@ class SCS
 
 
 	/**
+	* Relax an object 秒传
+	*
+	* @param string $bucket Destination bucket name
+	* @param string $uri Destination object URI
+	* @param string $sha1 Destination object sha1
+	* @param int64 $size Destination object size
+	* @param constant $acl ACL constant
+	* @param array $metaHeaders Optional array of x-amz-meta-* headers
+	* @param array $requestHeaders Optional array of request headers (content type, disposition, etc.)
+	* @param constant $storageClass Storage class constant
+	* @return mixed | false
+	*/
+	public static function putObjectRelax($bucket, $uri, $sha1, $size, $acl = self::ACL_PRIVATE, $metaHeaders = array(), $requestHeaders = array(), $storageClass = self::STORAGE_CLASS_STANDARD)
+	{
+		$rest = new SCSRequest('PUT', $bucket, $uri, self::$endpoint);
+		$rest->setHeader('Content-Length', 0);
+		
+		$rest->setAmzHeader('s-sina-sha1', $sha1);
+		$rest->setAmzHeader('s-sina-length', $size);
+		
+		foreach ($requestHeaders as $h => $v) $rest->setHeader($h, $v);
+		foreach ($metaHeaders as $h => $v) $rest->setAmzHeader('x-amz-meta-'.$h, $v);
+		
+		if ($storageClass !== self::STORAGE_CLASS_STANDARD) // Storage class
+			$rest->setAmzHeader('x-amz-storage-class', $storageClass);
+			
+		$rest->setAmzHeader('x-amz-acl', $acl);
+
+		$rest = $rest->getResponse();
+		if ($rest->error === false && $rest->code !== 200)
+			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
+		if ($rest->error !== false)
+		{
+			self::__triggerError(sprintf("SCS::putObjectRelax({$bucket}, {$uri}): [%s] %s",
+			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
+			return false;
+		}
+		return isset($rest->body->LastModified, $rest->body->ETag) ? array(
+			'time' => strtotime((string)$rest->body->LastModified),
+			'hash' => substr((string)$rest->body->ETag, 1, -1)
+		) : false;
+	}
+
+	/**
 	* Set up a bucket redirection
 	*
 	* @param string $bucket Bucket name
