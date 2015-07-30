@@ -29,3 +29,5 @@ CVS
 *.svg
 
 examples/config.php
+
+examples/relax.php

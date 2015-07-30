@@ -957,10 +957,12 @@ class SCS
 	public static function putObjectRelax($bucket, $uri, $sha1, $size, $acl = self::ACL_PRIVATE, $metaHeaders = array(), $requestHeaders = array(), $storageClass = self::STORAGE_CLASS_STANDARD)
 	{
 		$rest = new SCSRequest('PUT', $bucket, $uri, self::$endpoint);
-		$rest->setHeader('Content-Length', 0);
 		
-		$rest->setAmzHeader('s-sina-sha1', $sha1);
-		$rest->setAmzHeader('s-sina-length', $size);
+		$rest->setParameter('relax', null);
+		
+		$rest->setHeader('Content-Length', 0);
+		$rest->setHeader('s-sina-sha1', $sha1);
+		$rest->setHeader('s-sina-length', $size);
 		
 		foreach ($requestHeaders as $h => $v) $rest->setHeader($h, $v);
 		foreach ($metaHeaders as $h => $v) $rest->setAmzHeader('x-amz-meta-'.$h, $v);
@@ -979,10 +981,8 @@ class SCS
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
-		return isset($rest->body->LastModified, $rest->body->ETag) ? array(
-			'time' => strtotime((string)$rest->body->LastModified),
-			'hash' => substr((string)$rest->body->ETag, 1, -1)
-		) : false;
+		
+		return $rest->headers;
 	}
 
 	/**
@@ -2090,6 +2090,11 @@ final class SCSRequest
 				$headers[] = 'Authorization: ' . SCS::__getSignature($this->headers['Date']);
 			else
 			{
+				
+				if (isset($this->headers['s-sina-sha1'])) {
+					$this->headers['Content-MD5'] = $this->headers['s-sina-sha1'];
+				}
+				
 				$headers[] = 'Authorization: ' . SCS::__getSignature(
 					$this->verb."\n".
 					$this->headers['Content-MD5']."\n".
