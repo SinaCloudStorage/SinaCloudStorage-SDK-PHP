@@ -11,7 +11,7 @@ PHP SDK for 新浪云存储
 
 ### Installation
 
-* 可以使用`composer.phar`进行安装, 详细信息：https://packagist.org/packages/cloudmario/scs
+* 可以使用`composer.phar`进行安装, composer require cloudmario/scs:dev-master 详细信息：https://packagist.org/packages/cloudmario/scs
 * 也可以直接引用源码
 
 ### Usage
