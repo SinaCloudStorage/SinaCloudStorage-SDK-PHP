@@ -61,6 +61,7 @@ foreach ($all_files as $f) {
     }
     $file_path_local = substr($f, $tmp_folder_length);
     $file_path_remote = $upload_folder.$file_path_local;
+    $file_path_remote = ltrim($file_path_remote, '/');
     $input['file'] = $f;
     $ret = SCS::putObject($input, Bucket, $file_path_remote, SCS::ACL_PUBLIC_READ);
     if (!$ret) {
