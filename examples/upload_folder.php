@@ -53,9 +53,6 @@ if (!$all_files) {
 if ($upload_folder) {
     $upload_folder = trim($upload_folder, '/');
 }
-if ($upload_folder) {
-    $upload_folder = $upload_folder.'/';
-}
 $tmp_folder_length = strlen($local_folder);
 foreach ($all_files as $f) {
     if (is_link($f)) {
@@ -64,7 +61,8 @@ foreach ($all_files as $f) {
     }
     $file_path_local = substr($f, $tmp_folder_length);
     $file_path_remote = $upload_folder.$file_path_local;
-    $ret = SCS::putObject(SCS::inputResource(fopen($f, 'rb'), filesize($f)), Bucket, $file_path_remote, SCS::ACL_PUBLIC_READ);
+    $input['file'] = $f;
+    $ret = SCS::putObject($input, Bucket, $file_path_remote, SCS::ACL_PUBLIC_READ);
     if (!$ret) {
         echo(sprintf("Upload file: %s to SinaStorage failed.", $f));
         continue;
