@@ -934,10 +934,7 @@ class SCS
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
-		return isset($rest->body->LastModified, $rest->body->ETag) ? array(
-			'time' => strtotime((string)$rest->body->LastModified),
-			'hash' => substr((string)$rest->body->ETag, 1, -1)
-		) : false;
+		return true;
 	}
 
 
